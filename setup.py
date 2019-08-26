@@ -5,7 +5,7 @@ import setuptools
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
 class get_pybind_include(object):
@@ -31,6 +31,7 @@ ext_modules = [
             # Path to pybind11 headers
             get_pybind_include(),
             get_pybind_include(user=True),
+            'src',
         ],
         runtime_library_dirs=[os.path.join(sys.prefix, 'ctplib')],
         library_dirs=['ctplib'],
@@ -45,6 +46,7 @@ ext_modules = [
             # Path to pybind11 headers
             get_pybind_include(),
             get_pybind_include(user=True),
+            'src',
         ],
         runtime_library_dirs=[os.path.join(sys.prefix, 'ctplib')],
         library_dirs=['ctplib'],
