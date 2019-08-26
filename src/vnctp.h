@@ -123,5 +123,7 @@ inline string toUtf(const string &gb2312)
   PyObject* unicode = PyUnicode_Decode(gb2312.data(), gb2312.size(), "GBK", "strict");
   PyObject* utf8_bytes = PyUnicode_AsUTF8String(unicode);
   string res(PyBytes_AsString(utf8_bytes), PyBytes_Size(utf8_bytes));
+  Py_XREFDEC(unicode);
+  Py_XREFDEC(utf8_bytes);
   return res;
 }
