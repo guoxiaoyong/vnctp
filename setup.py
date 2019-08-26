@@ -1,11 +1,12 @@
 import sys
 import os
+import glob
 import setuptools
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
 class get_pybind_include(object):
@@ -33,6 +34,7 @@ ext_modules = [
             get_pybind_include(user=True),
             'src',
         ],
+        depends=glob.glob('src/*.h') + glob.glob('src/*/*.h'),
         runtime_library_dirs=[os.path.join(sys.prefix, 'ctplib')],
         library_dirs=['ctplib'],
         libraries=['thostmduserapi_se'],
@@ -48,6 +50,7 @@ ext_modules = [
             get_pybind_include(user=True),
             'src',
         ],
+        depends=glob.glob('src/*.h') + glob.glob('src/*/*.h'),
         runtime_library_dirs=[os.path.join(sys.prefix, 'ctplib')],
         library_dirs=['ctplib'],
         libraries=['thosttraderapi_se'],
