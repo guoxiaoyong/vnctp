@@ -130,8 +130,8 @@ setup(
     description='CTP binding extracted from vnpy',
     long_description='CTP binding extracted from vnpy',
     ext_modules=ext_modules,
-    install_requires=['pybind11>=2.3'],
-    setup_requires=['pybind11>=2.3'],
+    install_requires=['pybind11>=2.2'],
+    setup_requires=['pybind11>=2.2'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
     data_files=[('ctplib', ['ctplib/libthostmduserapi_se.so', 'ctplib/libthosttraderapi_se.so'])]
