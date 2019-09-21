@@ -1,6 +1,11 @@
 import json
-from xml.dom.minidom import parse
-import xml.dom.minidom
+from lxml import etree
+
+
+class CppStruct(object):
+  def __init__(self):
+    self.name = None
+    self.fields = []
 
 
 def print_as_json(value):
@@ -8,53 +13,48 @@ def print_as_json(value):
 
 
 def node_to_dict(node):
-  attrs = node.attributes
-  return dict(attrs.items())
+  return dict(node.items())
 
 
 def get_fundamental_types(tree):
-  fundamental_types = tree.getElementsByTagName("FundamentalType")
+  fundamental_types = tree.xpath('//FundamentalType')
   res = []
   for each in fundamental_types:
     res.append(node_to_dict(each))
   return res
 
-def get_methods(tree):
-  methods = tree.getElementsByTagName("Method")
+def get_array_types(tree):
+  array_types = tree.xpath('//ArrayType')
   res = []
-  for each in methods:
+  for each in array_types:
     res.append(node_to_dict(each))
   return res
 
 
+def get_methods(tree):
+  methods = tree.xpath("//Method")
+  print(tree)
+  res = []
+  for each in methods:
+    print(each)
+    res.append(node_to_dict(each))
+  return res
 
-tree = xml.dom.minidom.parse("ctp.xml")
-document = tree.documentElement
-res = get_methods(tree)
 
-print_as_json(res)
+def get_struct(tree):
+  struct_list = tree.xpath('//Struct[@members]')
+  res = []
+  for each in struct_list:
+    res.append(node_to_dict(each))
+  return res
+
+
+def get_by_id(tree, elem_id):
+  node = tree.findall(f'.//*[@id="{elem_id}"]')[0]
+  return node_to_dict(node)
 
 
 
-"""
-if collection.hasAttribute("shelf"):
-   print "Root element : %s" % collection.getAttribute("shelf")
-
-# 在集合中获取所有电影
-movies = collection.getElementsByTagName("movie")
-
-# 打印每部电影的详细信息
-for movie in movies:
-   print "*****Movie*****"
-   if movie.hasAttribute("title"):
-      print "Title: %s" % movie.getAttribute("title")
-
-   type = movie.getElementsByTagName('type')[0]
-   print "Type: %s" % type.childNodes[0].data
-   format = movie.getElementsByTagName('format')[0]
-   print "Format: %s" % format.childNodes[0].data
-   rating = movie.getElementsByTagName('rating')[0]
-   print "Rating: %s" % rating.childNodes[0].data
-   description = movie.getElementsByTagName('description')[0]
-   print "Description: %s" % description.childNodes[0].data
-"""
+tree = etree.parse('ctp.xml')
+method_list = get_methods(tree)
+#print_as_json(method_list)
