@@ -1,0 +1,44 @@
+#include "pybind11/pybind11.h"
+#include "ctp/ThostFtdcMdApi.h"
+
+
+class MdApi: public CThostFtdcMdSpi {
+ private:
+  CThostFtdcMdApi* api;
+
+ public:
+  MdApi() = default;
+
+  virtual int call(pybind11::dict& req_dict) {
+    const auto& method = req_dict['method']
+    {% for method in req_method_list %}
+    if (method == "{{method.name}}") {
+      {% for param in method.params %}
+      std::remove_pointer<std::remove_pointer<std::remove_cv<{{param.type}}>::type>::type>::type {{param.name}};
+      convert_value(req_dict["params"]["{{param.name | transform_param_name}}"], &{{param.name}});
+      {% endfor %}
+      auto result = {{method.name}}({{method.params | transform_call_param_list}});
+      pybind11::dict py_result;
+      py_result["method"] = method;
+      py_result["result"] = convert_value(result);
+      return py_result;
+    }
+    {% endfor %}
+    }
+  }
+
+  virtual void on_response(pybind11::dict& resp_dict) = 0;
+
+  {% for method in on_rsp_method_list %}
+  virtual void {{method.name}}({{method.params|transform_param_list}}) {
+    pybind11::dict resp_dict;
+    pybind11::dict data;
+    resp_dict["method"] = "{{method.name}}";
+    resp_dict["data"] = data;
+    {% for param in method.params %}
+    data["{{param.name | transform_param_name}}"] = convert_value({{param.name}});
+    {% endfor %}
+    this->on_response(resp_dict);
+  }
+  {% endfor %}
+};
