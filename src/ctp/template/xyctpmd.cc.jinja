@@ -1,6 +1,23 @@
 #include "pybind11/pybind11.h"
 #include "ctp/ThostFtdcMdApi.h"
 
+{%for struct in struct_list %}
+void convert_value(const {{struct.name}}& data, pybind11::dict* py_dict) {
+   {% for field in struct.field_list %}
+   py_dict["{{field.name}}"] = convert_value(data->);
+   {% endfor %}
+}
+
+void convert_value(const pybind11::dict& py_dict,  {{struct.name}}* data) {
+   memcpy(data, 0, sizeof(*data));
+   {% for field in struct.field_list %}
+   if (py_dict.has_key("{{field.name}}")) {
+     convert_value(py_dict["{{field.name}}"], &(data->{{field.name}}));
+   }
+   {% endfor %}
+}
+{% endfor %}
+
 
 class MdApi: public CThostFtdcMdSpi {
  private:
