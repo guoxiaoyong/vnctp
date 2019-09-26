@@ -115,7 +115,8 @@ class CtpApiParser(object):
         template = self._template_env.get_template('xyctpmd.cc.jinja')
         text = template.render(
             on_rsp_method_list=on_rsp_method_list,
-            req_method_list=req_method_list)
+            req_method_list=req_method_list,
+            struct_list=struct_list)
         return text
 
 

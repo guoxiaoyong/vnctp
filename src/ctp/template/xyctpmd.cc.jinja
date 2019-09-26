@@ -1,18 +1,38 @@
+#incluce <string>
+#include <memory>
+
 #include "pybind11/pybind11.h"
 #include "ctp/ThostFtdcMdApi.h"
 
-{%for struct in struct_list %}
-void convert_value(const {{struct.name}}& data, pybind11::dict* py_dict) {
+
+inline std::string convert_value(const std::string& gb2312) {
+  PyObject* unicode = PyUnicode_Decode(gb2312.data(), gb2312.size(), "GBK", "strict");
+  PyObject* utf8_bytes = PyUnicode_AsUTF8String(unicode);
+  string res(PyBytes_AsString(utf8_bytes), PyBytes_Size(utf8_bytes));
+  Py_XDECREF(unicode);
+  Py_XDECREF(utf8_bytes);
+  return res;
+}
+
+{% for basic_type in basic_type_list %}
+inline {{basic_type}} convert_value(const basic_type& value) {
+  return value;
+}
+{% endfor %}
+
+
+{% for struct in struct_list %}
+void convert_value(const {{struct.name}}& data, pybind11::dict& py_dict) {
    {% for field in struct.field_list %}
-   py_dict["{{field.name}}"] = convert_value(data->{{field.name}});
+   py_dict["{{field.name}}"] = convert_value(data.{{field.name}});
    {% endfor %}
 }
 
-void convert_value(const pybind11::dict& py_dict,  {{struct.name}}* data) {
-   memcpy(data, 0, sizeof(*data));
+void convert_value(const pybind11::dict& py_dict,  {{struct.name}}& data) {
+   memcpy(&data, 0, sizeof(data));
    {% for field in struct.field_list %}
    if (py_dict.contains("{{field.name}}")) {
-     convert_value(py_dict["{{field.name}}"], &(data->{{field.name}}));
+     convert_value(py_dict["{{field.name}}"], &(data.{{field.name}}));
    }
    {% endfor %}
 }
