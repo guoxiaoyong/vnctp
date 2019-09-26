@@ -570,7 +570,8 @@ int MdApi::exit()
     this->task_queue.terminate();
     this->task_thread.join();
 
-  this->api->RegisterSpi(NULL);
+  // Causes dead lock here?
+  // this->api->RegisterSpi(NULL);
   this->api->Release();
   this->api = NULL;
   return 1;
